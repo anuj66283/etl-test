@@ -24,7 +24,7 @@ def clean_data(f_name):
 
 def prevent_duplicates(folder):
 
-    files = [os.path.join(folder, f) for f in os.listdir(folder)]
+    files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith('.json')]
     files.sort(key=lambda x: os.path.getmtime(x))
 
     if len(files)>1:

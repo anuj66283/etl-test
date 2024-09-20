@@ -52,7 +52,7 @@ def put_data():
     if not os.path.exists(folder):
         os.makedirs(folder)
     
-    with open(f'{folder}/{f_name}', 'w') as f:
+    with open(f'{folder}/{f_name}.json', 'w') as f:
         f.write(resp)
 
     return folder
