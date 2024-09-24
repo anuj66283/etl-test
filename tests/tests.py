@@ -1,7 +1,8 @@
 import os
 import shutil
 import unittest
-from src import extract
+from src import extract, transform
+from datetime import datetime
 
 class ExtractTest(unittest.TestCase):
     
@@ -12,17 +13,19 @@ class ExtractTest(unittest.TestCase):
 
     def test_put(self):
         fldr = extract.put_data()
-
         self.assertTrue(os.path.exists(fldr))
         self.assertEqual(len(os.listdir(fldr)), 1)
 
-        shutil.rmtree(fldr)
-
-
-
-
 class TransformTest(unittest.TestCase):
-    pass
+
+    def test_sep(self):
+        fldr = datetime.now().strftime("%Y-%m")
+        rtr = transform.sep_data(fldr)
+
+        self.assertIn('FlightNumber', rtr['arrival'])
+        self.assertIn('FlightNumber', rtr['departure'])
+
+        shutil.rmtree(fldr)
 
 class LoadTest(unittest.TestCase):
     pass
