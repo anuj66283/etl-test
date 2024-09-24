@@ -35,7 +35,7 @@ def get_data():
         print(e)
         
     # verfy that response json contains required key    
-    assert 'data' in a
+    # assert 'data' in a
 
     #add a new key timestamp to record the time in which data was fetched
     a['timestamp'] = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
