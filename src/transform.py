@@ -2,11 +2,23 @@ import json
 import os
 import pandas as pd
 
-def clean_data(f_name):
-    
-    with open(f_name, 'r') as f:
-        data = json.load(f)
+def read_files(folder):
+    files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith('.json')]
+    files.sort(key=lambda x: os.path.getmtime(x))
 
+    if len(files)>1:
+        with open(files[-2], 'r') as f:
+            f1 = json.load(f)
+            
+        with open(files[-1], 'r') as f:
+            f2 = json.load(f)
+        
+        return (f1, f2)
+    else:
+        with open(files[0], 'r') as f:
+            return json.load(f)
+
+def clean_data(data):
     #get the time of extraction
     timestamp = data['timestamp']
 
@@ -22,18 +34,9 @@ def clean_data(f_name):
     return df[df['FlightStatus'].notna()], timestamp
 
 
-def prevent_duplicates(folder):
+def prevent_duplicates(present_data, present_time, past_data=None, past_time=None):
 
-    files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith('.json')]
-    files.sort(key=lambda x: os.path.getmtime(x))
-
-    if len(files)>1:
-        #get the recently and second to last recently modifed files
-        file_names = [files[-2], files[-1]]
-
-        past_data, past_time = clean_data(file_names[0])
-        present_data, present_time = clean_data(file_names[1])
-
+    if past_time:
         #join data so that if any flights are in past data only are omitted
         df = past_data.merge(present_data, on='FlightNumber', how='right')
 
@@ -65,9 +68,6 @@ def prevent_duplicates(folder):
 
     #if the data is only in receently fetched file
     else:
-        file_name = files[0]
-        present_data, present_time = clean_data(file_name)
-        
         present_data['FlightStatus'] = present_data['FlightStatus'].apply(lambda x: [{'status': x, 'timestamp': present_time}])
         present_data['ETAETD_date'] = present_data['ETAETD_date'].apply(lambda x: [{'time': x, 'timestamp': present_time}])
 
@@ -78,8 +78,17 @@ def prevent_duplicates(folder):
     return present_data
 
 #seperate above data as arrival and departure
-def sep_data(folder):
-    df = prevent_duplicates(folder)
+def sep_data(data):
+
+    if isinstance(data, (tuple, list)):
+        past_data, past_time = clean_data(data[0])
+        present_data, present_time = clean_data(data[1])
+        
+        df = prevent_duplicates(present_data, present_time, past_data, past_time)
+    else:
+        present_data, present_time = clean_data(data[0])
+        df = prevent_duplicates(present_data, present_time)
+
     departure = df[df['type']=='Departure']
     arrival = df[df['type']=='Arrival']
 

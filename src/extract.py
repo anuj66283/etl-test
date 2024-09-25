@@ -43,9 +43,7 @@ def get_data():
     return a
 
 #upload data to s3
-def put_data():
-    resp = json.dumps(get_data())
-
+def put_data(resp):
     f_name = datetime.now(tz).strftime("%Y%m%d-%H%M%S")
     folder = datetime.now(tz).strftime("%Y-%m")
     
@@ -56,3 +54,7 @@ def put_data():
         f.write(resp)
 
     return folder
+
+# x = json.dumps(get_data())
+
+# put_data(x)

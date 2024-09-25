@@ -2,10 +2,15 @@ import transform
 import load
 import extract
 import utils
+import json
 
+resp = json.dumps(extract.get_data())
 
-x = extract.put_data()
-data = transform.sep_data(x)
+x = extract.put_data(resp)
+
+data = transform.read_files(x)
+
+data = transform.sep_data(data)
 
 arrival = data['arrival']
 departure = data['departure']
